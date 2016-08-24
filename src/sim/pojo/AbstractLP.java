@@ -3,30 +3,44 @@ package sim.pojo;
 import sim.Simulator;
 
 import java.util.*;
-import sim.util.InterarrivalTimeGenerator;
 
 /**
  * Created by VyNguyen on 2/10/2016.
  */
 public abstract class AbstractLP implements ILP
 {
-    protected long lookahead;
-    protected long transTime;
-    protected long switchTime;
-    protected Queue<IEvent> fel = new PriorityQueue<IEvent>(100); //future event list
-    protected int id;
-    protected Map<Integer, ILP> neiMap = new HashMap<Integer, ILP>();
-    protected List<Integer> neiIds = new ArrayList<Integer>();
-    protected Random nextStopGen; //For next stop gen
-    protected long currentTime = 0;
-    protected int eventInEpoch = 0; //number of events proc in this epoch
-    protected Simulator simulator;
-    protected IEvent lastProcEvent; //Used for keeping track of the predecessor relation
-    protected InterarrivalTimeGenerator arrivalTimeGen;
-    protected int totalEventProc = 0; //number of events processed so far
+    //LP properties
+    protected final int id;
+    protected final long transTime;
+    protected final long switchTime;
+    protected final Map<Integer, ILP> neiMap = new HashMap<Integer, ILP>();
+    private final long lookahead;    
+    private final Simulator simulator;
+    private final List<Integer> neiIds = new ArrayList<Integer>();
+    
+    //Generators
+    private final Random nextStopGen; //For next stop gen
+    
+    //LP state
+    private IEvent lastProcEvent; //Used for keeping track of the predecessor relation
+    private int totalEventProc = 0; //number of events processed so far
+    private final Queue<IEvent> fel = new PriorityQueue<IEvent>(100); //future event list
+    private long currentTime = 0;
+    private final List<IEvent> currentEpochEvents = new LinkedList<IEvent>(); //all events that've been processed in current epoch.
+    
+    protected AbstractLP(int id, long transTime, long switchTime, long lookahead, Simulator simulator)
+    {
+        this.id = id;
+        this.lookahead = lookahead;
+        this.transTime = transTime;
+        this.switchTime = switchTime;
+
+        this.nextStopGen = new Random(System.currentTimeMillis());
+        this.simulator = simulator;
+    }
     
     @Override 
-    public int getTotalEventProc()
+    public final int getTotalEventProc()
     {
         return totalEventProc;
     }
@@ -38,17 +52,23 @@ public abstract class AbstractLP implements ILP
     }
 
     @Override
-    public final void resetEventCountPerEpoch()
+    public final void resetCurrentEpochEventCount()
     {
-        eventInEpoch = 0;
+        currentEpochEvents.clear();
+    }
+    
+    @Override
+    public final int getCurrentEpochEventCount()
+    {
+        return currentEpochEvents.size();
     }
 
     @Override
-    public int getCurrentEpochEventCount()
+    public final List<IEvent> getCurrentEpochEvents()
     {
-        return eventInEpoch;
+        return currentEpochEvents;
     }
-
+    
     @Override
     public final long getLPLBTS()
     {
@@ -97,7 +117,6 @@ public abstract class AbstractLP implements ILP
     @Override
     public final void scheduleEvent(IEvent event)
     {
-        simulator.getRelGraph().addVertex(event);
         fel.add(event);
     }
 
@@ -107,11 +126,6 @@ public abstract class AbstractLP implements ILP
         ArrayList<ILP> neis = getAllNeis();
         return neis.get(nextStopGen.nextInt(getAllNeis().size())).getId();
     }
-
-    public final int nextInt(int max)
-    {
-        return nextStopGen.nextInt(max);
-    }
     
     @Override
     public final int genHopCount(int maxHop, int minHop)
@@ -120,8 +134,37 @@ public abstract class AbstractLP implements ILP
         return rand.nextInt(maxHop) + minHop;
     }
     
-    protected final void recordRelation(IEvent event, IEvent newEvent)
+    @Override
+    public final long getCurrentTime()
+    {
+        return currentTime;
+    }
+    
+    protected final void onEventProcessed(IEvent event, IEvent newEvent)
+    {
+        //Record event for current epoch
+        currentEpochEvents.add(event);
+        
+        //Count event in total number of events processed by this LP
+        ++totalEventProc;   
+        
+        //Increment time
+        currentTime = event.getTimestamp();    
+        
+        //If new event is created, record the relation
+        if (newEvent != null)
+            recordRelation(event, newEvent);
+    }
+    
+    private void recordRelation(IEvent event, IEvent newEvent)
     {        
+        //Add the new event to the graph.
+        //As soon as an event is created, it needs to be added to the graph
+        //as vertex.
+        //Initial events are added to this graph via addInitialEvent method in the Simulator class
+        //The link - repping the relationship - will be added later.
+        simulator.getRelGraph().addVertex(newEvent);
+        
         //Set the ante rel
         simulator.getRelGraph().addEdge(event, newEvent);
         
@@ -133,9 +176,9 @@ public abstract class AbstractLP implements ILP
     }
     
     @Override
-    public final long nextArrival()
+    public long nextArrival()
     {
-        return (long)arrivalTimeGen.nextTime();
+        throw new UnsupportedOperationException("Not supported");
     }
         
     //Object stuff

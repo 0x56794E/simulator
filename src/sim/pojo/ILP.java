@@ -1,6 +1,7 @@
 package sim.pojo;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 public interface ILP
@@ -13,10 +14,12 @@ public interface ILP
     public void handleEvent(IEvent event);
     public void scheduleEvent(IEvent event);
     public long getLPLBTS();
-    public void resetEventCountPerEpoch();
+    public void resetCurrentEpochEventCount();
     public int getCurrentEpochEventCount();
+    public List<IEvent> getCurrentEpochEvents();
     public int getTotalEventProc();
     public boolean hasEvent();
+    public long getCurrentTime();
     
     /**
      * Randomly generates the next arrival time such that the interarrival times

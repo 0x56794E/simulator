@@ -2,7 +2,6 @@ package sim;
 
 import sim.enums.LPType;
 
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -80,28 +79,22 @@ public class Main
             {
 //                accumFW.write(String.format("%d,%d", delay.getKey(), delay.getValue()));
                 Simulator sim = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getKey(), delay.getValue(), LPType.Link);
-                sim.runBottleneckAnalysis(String.format("%s\\%s\\link_bottleneck.csv", 
-                                               resultDir, varyParam));
+                sim.runBottleneckAnalysis(varyParam);
 //                if (doCPA )
 //                    sim.runCPA();
 //                else
 //                    sim.run();
 //                
                 
-                
-//                bottleneck.write("Link,");
-//                sim.bottleneckAnalysis(bottleneck);
+
                 
                 Simulator sim2 = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getKey(), delay.getValue(), LPType.Node);
-                sim2.runBottleneckAnalysis(String.format("%s\\%s\\node_bottleneck.csv", 
-                                                resultDir, varyParam));
+                sim2.runBottleneckAnalysis(varyParam);
 //                if (doCPA)
 //                    sim2.runCPA();
 //                else
 //                    sim2.run();
-                
-//                bottleneck.write("Node,");
-//                sim2.bottleneckAnalysis(bottleneck);
+
             }
             else
             {

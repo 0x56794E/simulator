@@ -2,6 +2,14 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/pojo/impl/LinkLP.java</file>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/Simulator.java</file>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/enums/LPType.java</file>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/pojo/AbstractLP.java</file>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/Main.java</file>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/pojo/impl/NodeLP.java</file>
+            <file>file:/C:/Users/q393832/Desktop/Mine/paper1/simulator/src/sim/pojo/ILP.java</file>
+        </group>
     </open-files>
 </project-private>

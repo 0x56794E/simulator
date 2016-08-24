@@ -5,7 +5,6 @@ import sim.Simulator;
 import sim.pojo.impl.LinkLP;
 import sim.pojo.impl.MaxStopAwareEvent;
 import sim.pojo.impl.NodeLP;
-import sim.util.TrafficGenerator;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -162,6 +161,7 @@ public enum LPType
                                                                 EventType.DEPARTURE, 0,
                                                                 stops);
 
+                
                 //Schedule departure event on first node
                 lpMap.get(stops.get(0)).scheduleEvent(event);
                 simulator.addInitEvent(event);

@@ -50,6 +50,7 @@ public class Simulator
     
     public void addInitEvent(IEvent e)
     {
+        relGraph.addVertex(e);
         initialEvents.add(e);
     }
 
@@ -102,7 +103,7 @@ public class Simulator
             for(ILP lp : lpMap.values())
             {
                 //Start an epoch
-                lp.resetEventCountPerEpoch();
+                lp.resetCurrentEpochEventCount();
                 q = lp.getFEL();
 
                 if (q.isEmpty())
@@ -200,7 +201,7 @@ public class Simulator
             for(ILP lp : lpMap.values())
             {
                 //Start an epoch
-                lp.resetEventCountPerEpoch();
+                lp.resetCurrentEpochEventCount();
                 q = lp.getFEL();
 
                 if (q.isEmpty())
@@ -260,15 +261,30 @@ public class Simulator
      * Run the simulation with analysis of the top 10 busiest LPs.
      * Similar to run() but only do analysis on top 10 busiest LPs instead of
      * all LPs.
-     * @param fileName 
+     * @param varyParam
+     * @param modelName
      */
-    public void runBottleneckAnalysis(String fileName) throws IOException
+    public void runBottleneckAnalysis(String varyParam) throws IOException
     {
+        //File names
+        //Main result
+        String fileName = String.format("%s\\%s\\%s_bottleneck.csv", 
+                                        resultDir, varyParam, lpType);
+        String eventDistFileName = String.format("%s\\%s\\%s_eventDist.csv", 
+                                        resultDir, varyParam, lpType);
+        
         String newLine = System.getProperty("line.separator");
         FileWriter fw = new FileWriter(fileName);   
+        FileWriter eventDistFw = new FileWriter(eventDistFileName);
+        
          //epoch number, total event, max, min, mean, std dev
         fw.write("Epoch,Total Event,Max,Min,Mean,Std Dev");
         fw.write(newLine);
+        
+        //Epoch, EventCount, Event1, Event2, ... : LP1
+        //Epoch, EventCount, Event1, ...., ....  : LP2
+        eventDistFw.write("Epoch,Event Count");
+        eventDistFw.write(newLine);
         
         long LBTS;
         int epoch = 0;
@@ -283,7 +299,7 @@ public class Simulator
             for(ILP lp : lpMap.values())
             {
                 //Start an epoch
-                lp.resetEventCountPerEpoch();
+                lp.resetCurrentEpochEventCount();
                 q = lp.getFEL();
 
                 if (q.isEmpty())
@@ -299,6 +315,7 @@ public class Simulator
             //Write summary for this epoch
             //1. Find the top 10 busiest LPs in this epoch
             List<ILP> busiest = getBusiest(new ArrayList<>(lpMap.values()), 10);
+            recordEventCount(epoch, busiest, eventDistFw);
             
             //2. Calculate max, min, mean, std dev            
             long max = 0; //Max num of events per LP in ea epoch
@@ -342,6 +359,31 @@ public class Simulator
         } while (hasEvent() && epoch <= 100000); //while at least one LP still has event. 100k lim is "emergency break" to avoid inf loop
 
         fw.close();
+        eventDistFw.close();
+    }
+    
+    /**
+     * Generate graph where
+     * - Horizontal axis: time
+     * - Vertical axis: the LPs
+     * 
+     * This chart shows how the events are distributed
+     * LPs are sorted by the number of events they have to process.
+     */
+    private void recordEventCount(int epoch, List<ILP> lps, FileWriter file) throws IOException
+    {
+        String newLine = System.getProperty("line.separator");
+        //epoch, lp1's event count, event1's ts, event2's ts, event3's ts,...
+        //epoch, lp2's event count, event1's ts, event2's ts, event3's ts,...
+        for (ILP lp : lps)
+        {
+            file.write(String.format("%d,%d,", epoch, lp.getCurrentEpochEventCount()));
+            
+            for (IEvent event : lp.getCurrentEpochEvents())
+                file.write(String.format("%d,", event.getTimestamp()));
+            
+            file.write(newLine);
+        }
     }
     
     /**

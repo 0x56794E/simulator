@@ -4,8 +4,8 @@ import sim.pojo.AbstractLP;
 import sim.pojo.IEvent;
 import sim.Simulator;
 import sim.enums.EventType;
+import sim.pojo.ILP;
 
-import java.util.Random;
 
 /**
  * Created by VyNguyen on 2/10/2016.
@@ -14,32 +14,23 @@ public class NodeLP extends AbstractLP
 {
     public NodeLP(int id, long transTime, long switchTime, Simulator simulator)
     {
-        this.id = id;
-        this.lookahead = transTime;
-        this.transTime = transTime;
-        this.switchTime = switchTime;
-
-        nextStopGen = new Random(System.currentTimeMillis());
-        this.simulator = simulator;
+        super(id, transTime, switchTime, transTime, simulator);
     }
 
     @Override
     public void handleEvent(IEvent e)
     {
-        MaxStopAwareEvent event = (MaxStopAwareEvent) e;
-        currentTime = e.getTimestamp();
-        eventInEpoch += 1;
-        totalEventProc++;
-
+        MaxStopAwareEvent event = (MaxStopAwareEvent) e;    
         IEvent newEvent = null;
         
         //Departure from a node == transmitting => longer time
         //Schedule arrival at another node
         if (event.getType() == EventType.DEPARTURE)
         {
-            newEvent = new MaxStopAwareEvent(event.getTimestamp() + transTime,
+            ILP nextStop = neiMap.get(event.getNextStopId());
+            newEvent = new MaxStopAwareEvent(nextStop.getCurrentTime() + transTime,
                                    EventType.ARRIVAL, event.getCurrentStopIndex() + 1, event.getStops());
-            neiMap.get(event.getNextStopId()).scheduleEvent(newEvent);
+            nextStop.scheduleEvent(newEvent);
 
         }
         //Arrival = will schedule departure == process of switching => shorter time
@@ -55,13 +46,9 @@ public class NodeLP extends AbstractLP
                 
                 scheduleEvent(newEvent);
             }
-            else
-            {
-                return;
-            }
         }
         
-        recordRelation(event, newEvent);
+        onEventProcessed(event, newEvent);
     }
 
     @Override

@@ -4,8 +4,7 @@ import sim.pojo.AbstractLP;
 import sim.pojo.IEvent;
 import sim.Simulator;
 import sim.enums.EventType;
-
-import java.util.Random;
+import sim.pojo.ILP;
 
 public class LinkLP extends AbstractLP
 {
@@ -14,17 +13,10 @@ public class LinkLP extends AbstractLP
 
     public LinkLP(int id, int node1Id, int node2Id, long transTime, long switchTime, Simulator simulator)
     {
-        this.id = id;
-
-        this.lookahead = switchTime;
-        this.transTime = transTime;
-        this.switchTime = switchTime;
+        super(id, transTime, switchTime, switchTime, simulator);
 
         this.node1Id = node1Id;
         this.node2Id = node2Id;
-
-        nextStopGen = new Random(System.currentTimeMillis());
-        this.simulator = simulator;
     }
 
     public int getNode1Id()
@@ -41,10 +33,6 @@ public class LinkLP extends AbstractLP
     public void handleEvent(IEvent e)
     {
         MaxStopAwareEvent event = (MaxStopAwareEvent) e;
-        currentTime = e.getTimestamp();
-        this.eventInEpoch += 1; //keep count of how many events proceed in this epoch
-        totalEventProc++;
-        
         IEvent newEvent = null;
         
         //Departure from a link == switching
@@ -54,15 +42,12 @@ public class LinkLP extends AbstractLP
             //Schedule arrival at another
             if (!event.lastStop())
             {
-                newEvent = new MaxStopAwareEvent(event.getTimestamp() + switchTime,
+                ILP nextStop = neiMap.get(event.getNextStopId());
+                newEvent = new MaxStopAwareEvent(nextStop.getCurrentTime() + switchTime,
                                                            EventType.ARRIVAL, 
                                                            event.getCurrentStopIndex() + 1,
                                                            event.getStops());
-                neiMap.get(event.getNextStopId()).scheduleEvent(newEvent);
-            }
-            else
-            {
-                return;
+                nextStop.scheduleEvent(newEvent);
             }
         }
         //Arrival = will schedule departure == process of transmitting across the link => longer time
@@ -75,7 +60,7 @@ public class LinkLP extends AbstractLP
             scheduleEvent(newEvent);
         }
         
-        recordRelation(event, newEvent);        
+        onEventProcessed(event, newEvent);        
     }
 
     @Override
