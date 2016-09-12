@@ -58,18 +58,7 @@ public class Main
             );
 
         String varyParam = "varyLink";
-        boolean doCPA = true;
-        String resultFile = doCPA ? "withCPA" : "withoutCPA";
         String resultDir = TrafficGenerator.getResultDirectory(topologyFile, numPacket, arrivalRate);
-        String newLine = System.getProperty("line.separator");
-        
-//        FileWriter accumFW = new FileWriter(String.format("%s\\%s\\%s.csv", resultDir, varyParam, resultFile));
-//        FileWriter bottleneck = new FileWriter(String.format("%s\\%s\\bottleneck.csv", resultDir, varyParam));
-//        accumFW.write("Link Delay,Node Delay,Link Total Time,Link Total Event,Link Total Epoch,Link CPA,Link Concurrency(CPA),Link Concurrency (YAWN),Link LP Count,Link Max events per LP per epoch,"
-//                                          + "Node Total Time,Node Total Event,Node Total Epoch,Node CPA,Node Concurrecy (CPA),Node Concurrency (YAWN),Node LP Count,Node Max events per LP per epoch" + newLine);
-//        bottleneck.write("Model,Total LP,50,75,90" + newLine);
-        
-        
         
         long start = System.currentTimeMillis();
         for (Pair<Long, Long> delay : delays)
@@ -77,39 +66,20 @@ public class Main
             //Vary link
             if (varyParam.equals("varyLink"))
             {
-//                accumFW.write(String.format("%d,%d", delay.getKey(), delay.getValue()));
                 Simulator sim = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getKey(), delay.getValue(), LPType.Link);
-                sim.runBottleneckAnalysis(varyParam);
-//                if (doCPA )
-//                    sim.runCPA();
-//                else
-//                    sim.run();
-//                
-                
-
-                
+                sim.run();
                 Simulator sim2 = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getKey(), delay.getValue(), LPType.Node);
-                sim2.runBottleneckAnalysis(varyParam);
-//                if (doCPA)
-//                    sim2.runCPA();
-//                else
-//                    sim2.run();
+                sim2.run();
 
             }
             else
             {
-                //accumFW.write(String.format("%d,%d", delay.getValue(), delay.getKey()));
                 Simulator sim = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getValue(), delay.getKey(), LPType.Link);
                 sim.run();
                 Simulator sim2 = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getValue(), delay.getKey(), LPType.Node);
                 sim2.run();
             }
-
-//            accumFW.write(newLine);
         }
-
-//       bottleneck.close();
-//       accumFW.close();
        System.out.printf("Time elapsed: %d (ms)\n", System.currentTimeMillis() - start);
     }
 

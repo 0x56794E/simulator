@@ -86,7 +86,7 @@ public class Simulator
 
         long maxEventsperLPperEpoch = 0;
 
-        fw.write("Epoch,Total Events,Max events per LP,Min events per LP,Mean,Std Dev,Fifty,Seventy five,Total LP" + newLine);
+        fw.write("Epoch,Total Events,Max events per LP,Mean,Std Dev" + newLine);
 
         do
         {
@@ -148,12 +148,8 @@ public class Simulator
             //Write to detailed file
             sb.append(eventPerEpoch)
                     .append(",").append(max)
-                    .append(",").append(min)
                     .append(",").append(mean)
                     .append(",").append(Math.sqrt(var))
-                    .append(",").append(countTop(eventPerEpoch, 50))
-                    .append(",").append(countTop(eventPerEpoch, 75))
-                    .append(",").append(lpMap.size())
                     .append(newLine);
             fw.write(sb.toString());
 
