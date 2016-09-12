@@ -257,10 +257,9 @@ public class Simulator
      * Run the simulation with analysis of the top 10 busiest LPs.
      * Similar to run() but only do analysis on top 10 busiest LPs instead of
      * all LPs.
-     * @param varyParam
      * @param modelName
      */
-    public void runBottleneckAnalysis(String varyParam) throws IOException
+    public void runBottleneckAnalysis() throws IOException
     {
         //File names
         //Main result

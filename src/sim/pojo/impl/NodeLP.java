@@ -28,8 +28,8 @@ public class NodeLP extends AbstractLP
         if (event.getType() == EventType.DEPARTURE)
         {
             ILP nextStop = neiMap.get(event.getNextStopId());
-            newEvent = new MaxStopAwareEvent(nextStop.getCurrentTime() + transTime,
-                                   EventType.ARRIVAL, event.getCurrentStopIndex() + 1, event.getStops());
+            newEvent = new MaxStopAwareEvent(event.getTimestamp() + transTime,
+                                             EventType.ARRIVAL, event.getCurrentStopIndex() + 1, event.getStops());
             nextStop.scheduleEvent(newEvent);
 
         }

@@ -43,7 +43,7 @@ public class LinkLP extends AbstractLP
             if (!event.lastStop())
             {
                 ILP nextStop = neiMap.get(event.getNextStopId());
-                newEvent = new MaxStopAwareEvent(nextStop.getCurrentTime() + switchTime,
+                newEvent = new MaxStopAwareEvent(event.getTimestamp() + switchTime,
                                                            EventType.ARRIVAL, 
                                                            event.getCurrentStopIndex() + 1,
                                                            event.getStops());

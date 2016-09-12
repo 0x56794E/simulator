@@ -67,9 +67,9 @@ public class Main
             if (varyParam.equals("varyLink"))
             {
                 Simulator sim = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getKey(), delay.getValue(), LPType.Link);
-                sim.run();
+                sim.runBottleneckAnalysis();
                 Simulator sim2 = new Simulator(null, varyParam, topologyFile, trafficFileName, resultDir, delay.getKey(), delay.getValue(), LPType.Node);
-                sim2.run();
+                sim2.runBottleneckAnalysis();
 
             }
             else
